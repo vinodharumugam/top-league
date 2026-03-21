@@ -27,3 +27,4 @@ export const Colors = {
   draw: '#FFC107',
   loss: '#F44336',
 };
+// smoke test
