@@ -1,13 +1,70 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DreamTeamPlayer } from '../types/player';
 import { Formation, Squad } from '../types/dreamteam';
 import { TOTAL_BUDGET, SQUAD_SIZE, getTierByName } from '../constants/tiers';
 import { SAMPLE_PLAYERS } from '../services/sampleData';
 
+const STORAGE_KEY = 'top_league_dream_team';
+
+interface SavedSquadData {
+  squad: DreamTeamPlayer[];
+  formation: Formation;
+  teamName: string;
+}
+
 export function useDreamTeam() {
   const [squad, setSquad] = useState<DreamTeamPlayer[]>([]);
   const [formation, setFormation] = useState<Formation>('4-3-3');
   const [teamName, setTeamName] = useState('My Dream Team');
+  const [loaded, setLoaded] = useState(false);
+  const saveTimeout = useRef<any>(null);
+
+  // Load saved squad on mount
+  useEffect(() => {
+    loadSquad();
+  }, []);
+
+  // Auto-save whenever squad, formation, or team name changes (debounced)
+  useEffect(() => {
+    if (!loaded) return; // Don't save before we've loaded
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(() => {
+      persistSquad();
+    }, 500);
+  }, [squad, formation, teamName, loaded]);
+
+  const loadSquad = async () => {
+    try {
+      const data = await AsyncStorage.getItem(STORAGE_KEY);
+      if (data) {
+        const parsed: SavedSquadData = JSON.parse(data);
+        if (parsed.squad && parsed.squad.length > 0) {
+          // Match saved player IDs to current player data (in case stats were updated)
+          const restoredSquad = parsed.squad
+            .map((savedPlayer) => {
+              const current = SAMPLE_PLAYERS.find((p) => p.id === savedPlayer.id);
+              return current || savedPlayer; // Use current stats if available
+            });
+          setSquad(restoredSquad);
+        }
+        if (parsed.formation) setFormation(parsed.formation);
+        if (parsed.teamName) setTeamName(parsed.teamName);
+      }
+    } catch (e) {
+      // Silently fail
+    }
+    setLoaded(true);
+  };
+
+  const persistSquad = async () => {
+    try {
+      const data: SavedSquadData = { squad, formation, teamName };
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      // Silently fail
+    }
+  };
 
   const totalCost = squad.reduce((sum, p) => {
     const tier = getTierByName(p.tier);
