@@ -8,11 +8,16 @@ import {
   Image,
   FlatList,
   ActivityIndicator,
+  Dimensions,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../constants/colors';
 import { LEAGUES } from '../constants/leagues';
-import { fetchEspnTeams, fetchEspnTeamResults } from '../services/espnApi';
+import { fetchEspnTeams } from '../services/espnApi';
+import { fetchHighlights, VideoHighlight } from '../services/highlightsApi';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface Team {
   id: string;
@@ -21,25 +26,15 @@ interface Team {
   logo: string;
 }
 
-interface MatchResult {
-  id: string;
-  date: string;
-  homeTeam: string;
-  awayTeam: string;
-  homeLogo: string;
-  awayLogo: string;
-  homeScore: string;
-  awayScore: string;
-}
-
-type Step = 'leagues' | 'teams' | 'results';
+type Step = 'leagues' | 'teams' | 'highlights' | 'video';
 
 export default function HighlightsScreen() {
   const [step, setStep] = useState<Step>('leagues');
   const [selectedLeague, setSelectedLeague] = useState(LEAGUES[0]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
-  const [results, setResults] = useState<MatchResult[]>([]);
+  const [highlights, setHighlights] = useState<VideoHighlight[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<VideoHighlight | null>(null);
   const [loading, setLoading] = useState(false);
 
   const loadTeams = async (leagueId: number) => {
@@ -50,12 +45,18 @@ export default function HighlightsScreen() {
     setStep('teams');
   };
 
-  const loadResults = async (teamId: string) => {
+  const loadHighlights = async (teamName: string) => {
     setLoading(true);
-    const data = await fetchEspnTeamResults(selectedLeague.id, teamId);
-    setResults(data);
+    const data = await fetchHighlights(selectedLeague.id, teamName);
+    // If no team-specific highlights, try league-wide
+    if (data.length === 0) {
+      const leagueData = await fetchHighlights(selectedLeague.id);
+      setHighlights(leagueData);
+    } else {
+      setHighlights(data);
+    }
     setLoading(false);
-    setStep('results');
+    setStep('highlights');
   };
 
   // ====== LEAGUE SELECTION ======
@@ -63,7 +64,7 @@ export default function HighlightsScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>🎬 Highlights</Text>
-        <Text style={styles.subtitle}>Pick a league to browse</Text>
+        <Text style={styles.subtitle}>Pick a league</Text>
 
         <View style={styles.leagueGrid}>
           {LEAGUES.map((league) => (
@@ -97,7 +98,7 @@ export default function HighlightsScreen() {
           <Text style={styles.backText}>← Leagues</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{selectedLeague.emoji} {selectedLeague.name}</Text>
-        <Text style={styles.subtitle}>Pick a club</Text>
+        <Text style={styles.subtitle}>Pick a club to see highlights</Text>
 
         {loading ? (
           <View style={styles.loadingBox}>
@@ -116,7 +117,7 @@ export default function HighlightsScreen() {
                 style={styles.teamCard}
                 onPress={() => {
                   setSelectedTeam(item);
-                  loadResults(item.id);
+                  loadHighlights(item.shortName);
                 }}
                 activeOpacity={0.7}
               >
@@ -138,7 +139,62 @@ export default function HighlightsScreen() {
     );
   }
 
-  // ====== MATCH RESULTS ======
+  // ====== VIDEO PLAYER ======
+  if (step === 'video' && selectedVideo) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <TouchableOpacity onPress={() => setStep('highlights')} style={styles.backButton}>
+          <Text style={styles.backText}>← Highlights</Text>
+        </TouchableOpacity>
+
+        <ScrollView contentContainerStyle={styles.videoContainer}>
+          <Text style={styles.videoTitle}>{selectedVideo.title}</Text>
+          <Text style={styles.videoMeta}>
+            {selectedVideo.competition} · {new Date(selectedVideo.date).toLocaleDateString('en-US', {
+              weekday: 'short', month: 'short', day: 'numeric',
+            })}
+          </Text>
+
+          {/* Video thumbnail with play button — opens in browser */}
+          <TouchableOpacity
+            style={styles.videoPlayer}
+            onPress={() => {
+              if (selectedVideo.url) {
+                Linking.openURL(selectedVideo.url);
+              }
+            }}
+            activeOpacity={0.8}
+          >
+            {selectedVideo.thumbnail ? (
+              <Image
+                source={{ uri: selectedVideo.thumbnail }}
+                style={styles.videoThumbnailBig}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={styles.videoPlaceholder}>
+                <Text style={styles.placeholderEmoji}>🎬</Text>
+              </View>
+            )}
+            <View style={styles.playOverlay}>
+              <View style={styles.playButton}>
+                <Text style={styles.playButtonText}>▶</Text>
+              </View>
+              <Text style={styles.playLabel}>Tap to watch highlights</Text>
+            </View>
+          </TouchableOpacity>
+
+          <View style={styles.matchupBox}>
+            <Text style={styles.matchupTeam}>{selectedVideo.team1}</Text>
+            <Text style={styles.matchupVs}>vs</Text>
+            <Text style={styles.matchupTeam}>{selectedVideo.team2}</Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  // ====== HIGHLIGHTS LIST ======
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity onPress={() => setStep('teams')} style={styles.backButton}>
@@ -153,68 +209,67 @@ export default function HighlightsScreen() {
           <Text style={styles.title}>{selectedTeam.name}</Text>
         </View>
       )}
-      <Text style={styles.subtitle}>Latest results</Text>
+      <Text style={styles.subtitle}>Video highlights</Text>
 
       {loading ? (
         <View style={styles.loadingBox}>
           <ActivityIndicator size="large" color={Colors.accent} />
-          <Text style={styles.loadingText}>Loading results...</Text>
+          <Text style={styles.loadingText}>Loading highlights...</Text>
         </View>
-      ) : results.length === 0 ? (
+      ) : highlights.length === 0 ? (
         <View style={styles.emptyBox}>
-          <Text style={styles.emptyEmoji}>📋</Text>
-          <Text style={styles.emptyText}>No results found</Text>
+          <Text style={styles.emptyEmoji}>🎬</Text>
+          <Text style={styles.emptyText}>No highlights found right now</Text>
+          <Text style={styles.emptySubtext}>Check back after match day!</Text>
         </View>
       ) : (
         <FlatList
-          data={results}
+          data={highlights}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.resultsList}
-          renderItem={({ item }) => {
-            const isHomeWin = Number(item.homeScore) > Number(item.awayScore);
-            const isAwayWin = Number(item.awayScore) > Number(item.homeScore);
-            const isDraw = item.homeScore === item.awayScore;
-
-            return (
-              <View style={styles.resultCard}>
-                <Text style={styles.resultDate}>
-                  {new Date(item.date).toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </Text>
-                <View style={styles.resultMatch}>
-                  <View style={styles.resultTeam}>
-                    {item.homeLogo ? (
-                      <Image source={{ uri: item.homeLogo }} style={styles.resultLogo} />
-                    ) : null}
-                    <Text style={[styles.resultTeamName, isHomeWin && styles.resultWinner]} numberOfLines={1}>
-                      {item.homeTeam}
-                    </Text>
+          contentContainerStyle={styles.highlightList}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.highlightCard}
+              onPress={() => {
+                setSelectedVideo(item);
+                setStep('video');
+              }}
+              activeOpacity={0.7}
+            >
+              {/* Thumbnail */}
+              <View style={styles.thumbnailBox}>
+                {item.thumbnail ? (
+                  <Image
+                    source={{ uri: item.thumbnail }}
+                    style={styles.thumbnail}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={[styles.thumbnail, styles.thumbnailPlaceholder]}>
+                    <Text style={{ fontSize: 32 }}>🎬</Text>
                   </View>
-
-                  <View style={[
-                    styles.resultScoreBox,
-                    isDraw && styles.resultScoreDraw,
-                  ]}>
-                    <Text style={styles.resultScore}>
-                      {item.homeScore} - {item.awayScore}
-                    </Text>
-                  </View>
-
-                  <View style={[styles.resultTeam, { alignItems: 'flex-end' }]}>
-                    {item.awayLogo ? (
-                      <Image source={{ uri: item.awayLogo }} style={styles.resultLogo} />
-                    ) : null}
-                    <Text style={[styles.resultTeamName, isAwayWin && styles.resultWinner, { textAlign: 'right' }]} numberOfLines={1}>
-                      {item.awayTeam}
-                    </Text>
-                  </View>
+                )}
+                <View style={styles.thumbnailPlay}>
+                  <Text style={styles.thumbnailPlayText}>▶</Text>
                 </View>
               </View>
-            );
-          }}
+
+              {/* Info */}
+              <View style={styles.highlightInfo}>
+                <Text style={styles.highlightTitle} numberOfLines={2}>
+                  {item.title}
+                </Text>
+                <Text style={styles.highlightMeta}>
+                  {item.competition}
+                </Text>
+                <Text style={styles.highlightDate}>
+                  {new Date(item.date).toLocaleDateString('en-US', {
+                    month: 'short', day: 'numeric',
+                  })}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
         />
       )}
     </SafeAreaView>
@@ -267,9 +322,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     gap: 14,
   },
-  leagueEmoji: {
-    fontSize: 36,
-  },
+  leagueEmoji: { fontSize: 36 },
   leagueName: {
     fontSize: 17,
     fontWeight: '700',
@@ -332,60 +385,153 @@ const styles = StyleSheet.create({
     height: 36,
   },
 
-  // Results
-  resultsList: {
+  // Highlights list
+  highlightList: {
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
-  resultCard: {
+  highlightCard: {
+    flexDirection: 'row',
     backgroundColor: Colors.darkCard,
     borderRadius: 12,
-    padding: 14,
-    marginBottom: 8,
-  },
-  resultDate: {
-    fontSize: 11,
-    color: Colors.textSecondary,
-    fontWeight: '600',
+    overflow: 'hidden',
     marginBottom: 10,
   },
-  resultMatch: {
-    flexDirection: 'row',
+  thumbnailBox: {
+    width: 140,
+    height: 90,
+    position: 'relative',
+  },
+  thumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+  thumbnailPlaceholder: {
+    backgroundColor: Colors.darkSurface,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  resultTeam: {
+  thumbnailPlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  thumbnailPlayText: {
+    fontSize: 24,
+    color: '#fff',
+  },
+  highlightInfo: {
     flex: 1,
-    alignItems: 'flex-start',
-    gap: 6,
+    padding: 10,
+    justifyContent: 'center',
   },
-  resultLogo: {
-    width: 28,
-    height: 28,
-  },
-  resultTeamName: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.textSecondary,
-  },
-  resultWinner: {
-    color: Colors.textPrimary,
+  highlightTitle: {
+    fontSize: 14,
     fontWeight: '700',
+    color: Colors.textPrimary,
+    lineHeight: 18,
   },
-  resultScoreBox: {
+  highlightMeta: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 4,
+  },
+  highlightDate: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+
+  // Video player
+  videoContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 30,
+  },
+  videoTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  videoMeta: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginBottom: 16,
+  },
+  videoPlayer: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    borderRadius: 14,
+    overflow: 'hidden',
     backgroundColor: Colors.darkSurface,
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    marginHorizontal: 10,
+    position: 'relative',
   },
-  resultScoreDraw: {
-    borderWidth: 1,
-    borderColor: Colors.draw + '40',
+  videoThumbnailBig: {
+    width: '100%',
+    height: '100%',
   },
-  resultScore: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: Colors.accent,
+  videoPlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderEmoji: { fontSize: 60 },
+  playOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  playButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: Colors.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playButtonText: {
+    fontSize: 28,
+    color: Colors.dark,
+    marginLeft: 4,
+  },
+  playLabel: {
+    color: Colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 10,
+  },
+  matchupBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.darkCard,
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16,
+    gap: 12,
+  },
+  matchupTeam: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    flex: 1,
+    textAlign: 'center',
+  },
+  matchupVs: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.accentOrange,
   },
 
   // Loading / Empty
@@ -407,6 +553,12 @@ const styles = StyleSheet.create({
   emptyEmoji: { fontSize: 40, marginBottom: 8 },
   emptyText: {
     fontSize: 16,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  emptySubtext: {
+    fontSize: 13,
     color: Colors.textSecondary,
+    marginTop: 4,
   },
 });
