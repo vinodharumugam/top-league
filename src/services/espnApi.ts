@@ -111,9 +111,14 @@ export async function fetchEspnFixtures(leagueId: number) {
   if (!slug) return [];
 
   try {
-    // Get recent results
+    // Get recent results - use date range for last 14 days
+    const now = new Date();
+    const twoWeeksAgo = new Date();
+    twoWeeksAgo.setDate(now.getDate() - 14);
+    const dateFrom = twoWeeksAgo.toISOString().slice(0, 10).replace(/-/g, '');
+    const dateTo = now.toISOString().slice(0, 10).replace(/-/g, '');
     const res = await fetch(
-      `${ESPN_BASE}/site/v2/sports/soccer/${slug}/scoreboard?limit=15`
+      `${ESPN_BASE}/site/v2/sports/soccer/${slug}/scoreboard?dates=${dateFrom}-${dateTo}&limit=15`
     );
     if (!res.ok) throw new Error(`ESPN API error: ${res.status}`);
     const data = await res.json();
@@ -197,11 +202,15 @@ export async function fetchEspnTeamResults(leagueId: number, teamId: string) {
 
     const events = data?.events ?? [];
 
-    // Only return completed matches, most recent first
+    // Only return completed matches from the last 30 days, most recent first
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
     return events
       .filter((e: any) => {
         const status = e.competitions?.[0]?.status?.type?.name || '';
-        return status === 'STATUS_FULL_TIME';
+        const matchDate = new Date(e.date);
+        return status === 'STATUS_FULL_TIME' && matchDate >= thirtyDaysAgo;
       })
       .reverse()
       .slice(0, 15)
