@@ -12,16 +12,18 @@ interface Props {
 }
 
 export default function MatchSimScreen({ result, onDone, onRematch }: Props) {
+  const [matchKey, setMatchKey] = useState(0);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>⚽ Match Day!</Text>
       </View>
 
-      <MatchSimulation key={result.homeGoals * 1000 + result.awayGoals + Math.random()} result={result} onComplete={() => {}} />
+      <MatchSimulation key={matchKey} result={result} onComplete={() => {}} />
 
       {onRematch && (
-        <TouchableOpacity style={styles.rematchButton} onPress={handleRematch} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.rematchButton} onPress={() => { setMatchKey((k) => k + 1); onRematch(); }} activeOpacity={0.8}>
           <Text style={styles.rematchText}>⚡ Rematch (Same Teams)</Text>
         </TouchableOpacity>
       )}
