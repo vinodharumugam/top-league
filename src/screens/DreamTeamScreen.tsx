@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../constants/colors';
@@ -6,6 +6,8 @@ import { TIERS, formatMoney } from '../constants/tiers';
 import { useDreamTeam } from '../hooks/useDreamTeam';
 import { simulateMatch } from '../utils/matchEngine';
 import { generateComputerTeam } from '../utils/computerTeam';
+import { saveMatchResult } from '../services/supabase';
+import { AuthContext } from '../../App';
 import BudgetBar from '../components/dreamteam/BudgetBar';
 import FormationView from '../components/dreamteam/FormationView';
 import PlayerPickScreen from './PlayerPickScreen';
@@ -19,6 +21,8 @@ type Screen = 'home' | 'pick' | 'formation' | 'match' | 'multiplayer' | 'local-m
 export default function DreamTeamScreen() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   const [matchResult, setMatchResult] = useState<any>(null);
+  const lastDifficulty = useRef<string>('medium');
+  const { user } = useContext(AuthContext);
 
   const {
     squad,
@@ -38,11 +42,23 @@ export default function DreamTeamScreen() {
     isSquadFull,
   } = useDreamTeam();
 
+  const saveMatch = async (result: any, difficulty: string) => {
+    if (user) {
+      try {
+        await saveMatchResult(user.id, result, `computer_${difficulty}`);
+      } catch (e) {
+        // Silently fail — don't block gameplay
+      }
+    }
+  };
+
   const handleStartMatch = () => {
     const computerTeam = generateComputerTeam('medium', squad.map((p) => p.id));
     const result = simulateMatch(getSquadObject(), computerTeam);
     setMatchResult(result);
+    lastDifficulty.current = 'medium';
     setCurrentScreen('match');
+    saveMatch(result, 'medium');
   };
 
   const handlePlayComputer = (difficulty: 'easy' | 'medium' | 'hard' | 'legends' | 'best') => {
@@ -53,7 +69,9 @@ export default function DreamTeamScreen() {
     const computerTeam = generateComputerTeam(difficulty, squad.map((p) => p.id));
     const result = simulateMatch(getSquadObject(), computerTeam);
     setMatchResult(result);
+    lastDifficulty.current = difficulty;
     setCurrentScreen('match');
+    saveMatch(result, difficulty);
   };
 
   // Sub-screens
@@ -96,12 +114,33 @@ export default function DreamTeamScreen() {
     );
   }
 
+  const handleOnlineMatch = (opponentSquadJson: any, matchSeed: number) => {
+    // Reconstruct opponent squad
+    const opponentSquad = {
+      id: 'online-opponent',
+      name: 'Online Opponent',
+      formation: opponentSquadJson.formation || '4-3-3',
+      players: opponentSquadJson.players || opponentSquadJson,
+      totalCost: opponentSquadJson.totalCost || 0,
+      averageRating: opponentSquadJson.averageRating || 80,
+    };
+    const result = simulateMatch(getSquadObject(), opponentSquad);
+    setMatchResult(result);
+    lastDifficulty.current = 'online';
+    setCurrentScreen('match');
+    if (user) {
+      saveMatchResult(user.id, result, 'online').catch(() => {});
+    }
+  };
+
   if (currentScreen === 'multiplayer') {
     return (
       <MultiplayerScreen
         hasSquad={isSquadFull}
+        squadJson={isSquadFull ? getSquadObject() : null}
         onPlayComputer={handlePlayComputer}
         onLocalMultiplayer={() => setCurrentScreen('local-mp')}
+        onOnlineMatch={handleOnlineMatch}
         onBack={() => setCurrentScreen('home')}
       />
     );

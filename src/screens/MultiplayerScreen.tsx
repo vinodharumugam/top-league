@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,38 +6,86 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../constants/colors';
+import { AuthContext } from '../../App';
+import {
+  createChallenge,
+  joinChallenge,
+  cancelChallenge,
+  subscribeToChallengeUpdates,
+} from '../services/supabase';
+import { supabase } from '../services/supabase';
 
 interface Props {
   hasSquad: boolean;
+  squadJson: any;
   onPlayComputer: (difficulty: 'easy' | 'medium' | 'hard' | 'legends' | 'best') => void;
   onLocalMultiplayer: () => void;
+  onOnlineMatch: (opponentSquad: any, matchSeed: number) => void;
   onBack: () => void;
 }
 
-export default function MultiplayerScreen({ hasSquad, onPlayComputer, onLocalMultiplayer, onBack }: Props) {
+export default function MultiplayerScreen({ hasSquad, squadJson, onPlayComputer, onLocalMultiplayer, onOnlineMatch, onBack }: Props) {
+  const { user, isGuest } = useContext(AuthContext);
   const [challengeCode, setChallengeCode] = useState('');
   const [createdCode, setCreatedCode] = useState<string | null>(null);
+  const [createdChallengeId, setCreatedChallengeId] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(false);
   const [noSquadMsg, setNoSquadMsg] = useState<string | null>(null);
   const [joinMsg, setJoinMsg] = useState<string | null>(null);
+  const [joining, setJoining] = useState(false);
 
-  const handleCreateChallenge = () => {
+  // Subscribe to challenge updates when waiting
+  useEffect(() => {
+    if (!createdChallengeId || !waiting) return;
+
+    const channel = subscribeToChallengeUpdates(createdChallengeId, (challenge) => {
+      if (challenge.status === 'matched' && challenge.guest_squad_json) {
+        setWaiting(false);
+        setCreatedCode(null);
+        onOnlineMatch(challenge.guest_squad_json, challenge.match_seed);
+      }
+    });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [createdChallengeId, waiting]);
+
+  const handleCreateChallenge = async () => {
     if (!hasSquad) {
       setNoSquadMsg('You need 11 players first! Go pick your squad.');
       setTimeout(() => setNoSquadMsg(null), 4000);
       return;
     }
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    if (!user) {
+      setNoSquadMsg('You need to be logged in to play online! Go to More > Sign In.');
+      setTimeout(() => setNoSquadMsg(null), 4000);
+      return;
+    }
+
+    const { challenge, code, error } = await createChallenge(user.id, squadJson);
+    if (error) {
+      setNoSquadMsg(error);
+      setTimeout(() => setNoSquadMsg(null), 4000);
+      return;
+    }
     setCreatedCode(code);
+    setCreatedChallengeId(challenge.id);
     setWaiting(true);
   };
 
-  const handleJoinChallenge = () => {
+  const handleJoinChallenge = async () => {
     if (!hasSquad) {
       setNoSquadMsg('You need 11 players first! Go pick your squad.');
+      setTimeout(() => setNoSquadMsg(null), 4000);
+      return;
+    }
+    if (!user) {
+      setNoSquadMsg('You need to be logged in to play online! Go to More > Sign In.');
       setTimeout(() => setNoSquadMsg(null), 4000);
       return;
     }
@@ -46,8 +94,29 @@ export default function MultiplayerScreen({ hasSquad, onPlayComputer, onLocalMul
       setTimeout(() => setJoinMsg(null), 3000);
       return;
     }
-    setJoinMsg('Connecting... Online multiplayer is coming soon! Try vs Computer for now.');
-    setTimeout(() => setJoinMsg(null), 5000);
+
+    setJoining(true);
+    const { challenge, error } = await joinChallenge(challengeCode, user.id, squadJson);
+    setJoining(false);
+
+    if (error) {
+      setJoinMsg(error);
+      setTimeout(() => setJoinMsg(null), 4000);
+      return;
+    }
+
+    if (challenge) {
+      onOnlineMatch(challenge.host_squad_json, challenge.match_seed);
+    }
+  };
+
+  const handleCancelChallenge = async () => {
+    if (createdChallengeId) {
+      await cancelChallenge(createdChallengeId);
+    }
+    setCreatedCode(null);
+    setCreatedChallengeId(null);
+    setWaiting(false);
   };
 
   return (
@@ -157,10 +226,7 @@ export default function MultiplayerScreen({ hasSquad, onPlayComputer, onLocalMul
               </View>
               <TouchableOpacity
                 style={styles.cancelButton}
-                onPress={() => {
-                  setCreatedCode(null);
-                  setWaiting(false);
-                }}
+                onPress={handleCancelChallenge}
               >
                 <Text style={styles.cancelText}>Cancel Challenge</Text>
               </TouchableOpacity>
