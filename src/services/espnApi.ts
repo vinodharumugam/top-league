@@ -161,6 +161,75 @@ export async function fetchEspnFixtures(leagueId: number) {
   }
 }
 
+export async function fetchEspnTeams(leagueId: number) {
+  const slug = ESPN_LEAGUE_SLUGS[leagueId];
+  if (!slug) return [];
+
+  try {
+    const res = await fetch(`${ESPN_BASE}/site/v2/sports/soccer/${slug}/teams`);
+    if (!res.ok) throw new Error(`ESPN API error: ${res.status}`);
+    const data = await res.json();
+
+    const teams = data?.sports?.[0]?.leagues?.[0]?.teams ?? [];
+
+    return teams.map((t: any) => ({
+      id: t.team.id,
+      name: t.team.displayName,
+      shortName: t.team.shortDisplayName || t.team.displayName,
+      logo: t.team.logos?.[0]?.href ?? '',
+    }));
+  } catch (err) {
+    console.error('ESPN teams error:', err);
+    return [];
+  }
+}
+
+export async function fetchEspnTeamResults(leagueId: number, teamId: string) {
+  const slug = ESPN_LEAGUE_SLUGS[leagueId];
+  if (!slug) return [];
+
+  try {
+    const res = await fetch(
+      `${ESPN_BASE}/site/v2/sports/soccer/${slug}/teams/${teamId}/schedule`
+    );
+    if (!res.ok) throw new Error(`ESPN API error: ${res.status}`);
+    const data = await res.json();
+
+    const events = data?.events ?? [];
+
+    // Only return completed matches, most recent first
+    return events
+      .filter((e: any) => {
+        const status = e.competitions?.[0]?.status?.type?.name || '';
+        return status === 'STATUS_FULL_TIME';
+      })
+      .reverse()
+      .slice(0, 15)
+      .map((e: any) => {
+        const comp = e.competitions[0];
+        const home = comp.competitors[0];
+        const away = comp.competitors[1];
+
+        const homeScore = typeof home.score === 'object' ? home.score.displayValue : home.score;
+        const awayScore = typeof away.score === 'object' ? away.score.displayValue : away.score;
+
+        return {
+          id: e.id,
+          date: e.date,
+          homeTeam: home.team.displayName,
+          awayTeam: away.team.displayName,
+          homeLogo: home.team.logos?.[0]?.href ?? '',
+          awayLogo: away.team.logos?.[0]?.href ?? '',
+          homeScore: homeScore || '0',
+          awayScore: awayScore || '0',
+        };
+      });
+  } catch (err) {
+    console.error('ESPN team results error:', err);
+    return [];
+  }
+}
+
 export async function fetchEspnTopScorers(leagueId: number) {
   const slug = ESPN_LEAGUE_SLUGS[leagueId];
   if (!slug) return [];
