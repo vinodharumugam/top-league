@@ -110,6 +110,13 @@ export default function DreamTeamScreen() {
           setMatchResult(null);
           setCurrentScreen('home');
         }}
+        onRematch={() => {
+          const difficulty = lastDifficulty.current as any;
+          const computerTeam = generateComputerTeam(difficulty, squad.map((p) => p.id));
+          const newResult = simulateMatch(getSquadObject(), computerTeam);
+          setMatchResult(newResult);
+          saveMatch(newResult, difficulty);
+        }}
       />
     );
   }
