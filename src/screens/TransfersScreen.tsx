@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// SafeAreaView handled by parent
 import { Colors } from '../constants/colors';
 import { useTransfers } from '../hooks/useTransfers';
 import TransferCard from '../components/transfers/TransferCard';
@@ -12,7 +12,7 @@ export default function TransfersScreen() {
   const { transfers, loading, error, filterType, setFilterType, refetch } = useTransfers();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.title}>🔄 Live Transfers</Text>
 
       <TransferFilter activeFilter={filterType} onFilterChange={setFilterType} />
@@ -36,7 +36,7 @@ export default function TransfersScreen() {
           }
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 

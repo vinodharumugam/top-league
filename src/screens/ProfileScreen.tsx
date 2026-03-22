@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// SafeAreaView handled by parent
 import { Colors } from '../constants/colors';
 import { getProfile, getMatchHistory, signOut } from '../services/supabase';
 
@@ -78,17 +78,17 @@ export default function ProfileScreen({ userId, username, onSignOut }: Props) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.loadingBox}>
           <ActivityIndicator size="large" color={Colors.accent} />
           <Text style={styles.loadingText}>Loading profile...</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Profile Header */}
         <View style={styles.header}>
@@ -163,7 +163,7 @@ export default function ProfileScreen({ userId, username, onSignOut }: Props) {
 
         <View style={{ height: 30 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

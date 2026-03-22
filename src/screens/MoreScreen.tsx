@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../constants/colors';
 import { AuthContext } from '../../App';
@@ -7,52 +7,29 @@ import TransfersScreen from './TransfersScreen';
 import HighlightsScreen from './HighlightsScreen';
 import ProfileScreen from './ProfileScreen';
 
-type SubScreen = 'menu' | 'transfers' | 'highlights' | 'profile';
-
 export default function MoreScreen() {
-  const [subScreen, setSubScreen] = useState<SubScreen>('menu');
+  const [subScreen, setSubScreen] = useState<'menu' | 'transfers' | 'highlights' | 'profile'>('menu');
   const { user, profile, isGuest, clearAuth } = useContext(AuthContext);
 
-  if (subScreen === 'transfers') {
+  // Wrap all sub-screens the same way
+  if (subScreen !== 'menu') {
     return (
-      <View style={styles.container}>
-        <SafeAreaView style={{ backgroundColor: Colors.dark }}>
-          <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
-            <Text style={styles.backText}>← Back to More</Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-        <TransfersScreen />
-      </View>
-    );
-  }
-
-  if (subScreen === 'highlights') {
-    return (
-      <View style={styles.container}>
-        <SafeAreaView style={{ backgroundColor: Colors.dark }}>
-          <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
-            <Text style={styles.backText}>← Back to More</Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-        <HighlightsScreen />
-      </View>
-    );
-  }
-
-  if (subScreen === 'profile' && user) {
-    return (
-      <View style={styles.container}>
-        <SafeAreaView style={{ backgroundColor: Colors.dark }}>
-          <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
-            <Text style={styles.backText}>← Back to More</Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-        <ProfileScreen
-          userId={user.id}
-          username={profile?.username || 'Player'}
-          onSignOut={clearAuth}
-        />
-      </View>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
+          <Text style={styles.backText}>← Back to More</Text>
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          {subScreen === 'transfers' && <TransfersScreen />}
+          {subScreen === 'highlights' && <HighlightsScreen />}
+          {subScreen === 'profile' && user && (
+            <ProfileScreen
+              userId={user.id}
+              username={profile?.username || 'Player'}
+              onSignOut={clearAuth}
+            />
+          )}
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -70,7 +47,6 @@ export default function MoreScreen() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>More</Text>
 
-      {/* User Status Bar */}
       {user ? (
         <View style={styles.userBar}>
           <View style={styles.userAvatar}>

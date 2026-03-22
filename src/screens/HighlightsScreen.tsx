@@ -11,7 +11,7 @@ import {
   Dimensions,
   Linking,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+// SafeAreaView handled by parent (MoreScreen)
 import { Colors } from '../constants/colors';
 import { LEAGUES } from '../constants/leagues';
 import { fetchEspnTeams } from '../services/espnApi';
@@ -56,7 +56,7 @@ export default function HighlightsScreen() {
   // ====== LEAGUE SELECTION ======
   if (step === 'leagues') {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <Text style={styles.title}>🎬 Highlights</Text>
         <Text style={styles.subtitle}>Pick a league</Text>
 
@@ -80,14 +80,14 @@ export default function HighlightsScreen() {
             </TouchableOpacity>
           ))}
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   // ====== TEAM SELECTION ======
   if (step === 'teams') {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <TouchableOpacity onPress={() => setStep('leagues')} style={styles.backButton}>
           <Text style={styles.backText}>← Leagues</Text>
         </TouchableOpacity>
@@ -129,14 +129,14 @@ export default function HighlightsScreen() {
             )}
           />
         )}
-      </SafeAreaView>
+      </View>
     );
   }
 
   // ====== VIDEO PLAYER ======
   if (step === 'video' && selectedVideo) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <TouchableOpacity onPress={() => setStep('highlights')} style={styles.backButton}>
           <Text style={styles.backText}>← Highlights</Text>
         </TouchableOpacity>
@@ -184,13 +184,13 @@ export default function HighlightsScreen() {
             <Text style={styles.matchupTeam}>{selectedVideo.team2}</Text>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     );
   }
 
   // ====== HIGHLIGHTS LIST ======
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <TouchableOpacity onPress={() => setStep('teams')} style={styles.backButton}>
         <Text style={styles.backText}>← {selectedLeague.name}</Text>
       </TouchableOpacity>
@@ -266,7 +266,7 @@ export default function HighlightsScreen() {
           )}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
