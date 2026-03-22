@@ -271,38 +271,38 @@ export const SAMPLE_PLAYERS: DreamTeamPlayer[] = [
 
   // === LEGENDS (all 99 rated for ultimate team) ===
   // GK
-  { id: 99, name: 'Lev Yashin', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'GK', tier: 'Star', rating: 95, pace: 50, shooting: 10, passing: 65, defending: 40, physical: 92, photo: playerPhoto('Lev Yashin') },
-  { id: 150, name: 'Gianluigi Buffon', team: 'Legends', league: 'Serie A', leagueId: 135, position: 'GK', tier: 'Star', rating: 92, pace: 48, shooting: 8, passing: 68, defending: 38, physical: 90, photo: playerPhoto('Gianluigi Buffon') },
+  { id: 99, name: 'Lev Yashin', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'GK', tier: 'Legend', rating: 95, pace: 50, shooting: 10, passing: 65, defending: 40, physical: 92, photo: playerPhoto('Lev Yashin') },
+  { id: 150, name: 'Gianluigi Buffon', team: 'Legends', league: 'Serie A', leagueId: 135, position: 'GK', tier: 'Legend', rating: 92, pace: 48, shooting: 8, passing: 68, defending: 38, physical: 90, photo: playerPhoto('Gianluigi Buffon') },
 
   // DEF — now all 99
-  { id: 112, name: 'Paolo Maldini', team: 'Legends', league: 'Serie A', leagueId: 135, position: 'DEF', tier: 'Star', rating: 96, pace: 78, shooting: 48, passing: 78, defending: 97, physical: 88, photo: playerPhoto('Paolo Maldini') },
-  { id: 113, name: 'Franz Beckenbauer', team: 'Legends', league: 'Bundesliga', leagueId: 78, position: 'DEF', tier: 'Star', rating: 95, pace: 76, shooting: 75, passing: 90, defending: 95, physical: 85, photo: playerPhoto('Franz Beckenbauer') },
-  { id: 105, name: 'Roberto Carlos', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'DEF', tier: 'Star', rating: 93, pace: 92, shooting: 88, passing: 85, defending: 82, physical: 80, photo: playerPhoto('Roberto Carlos') },
-  { id: 151, name: 'Cafu', team: 'Legends', league: 'Serie A', leagueId: 135, position: 'DEF', tier: 'Star', rating: 92, pace: 90, shooting: 58, passing: 80, defending: 88, physical: 85, photo: playerPhoto('Cafu') },
-  { id: 152, name: 'Sergio Ramos', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'DEF', tier: 'Star', rating: 93, pace: 75, shooting: 68, passing: 70, defending: 94, physical: 92, photo: playerPhoto('Sergio Ramos') },
+  { id: 112, name: 'Paolo Maldini', team: 'Legends', league: 'Serie A', leagueId: 135, position: 'DEF', tier: 'Legend', rating: 96, pace: 78, shooting: 48, passing: 78, defending: 97, physical: 88, photo: playerPhoto('Paolo Maldini') },
+  { id: 113, name: 'Franz Beckenbauer', team: 'Legends', league: 'Bundesliga', leagueId: 78, position: 'DEF', tier: 'Legend', rating: 95, pace: 76, shooting: 75, passing: 90, defending: 95, physical: 85, photo: playerPhoto('Franz Beckenbauer') },
+  { id: 105, name: 'Roberto Carlos', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'DEF', tier: 'Legend', rating: 93, pace: 92, shooting: 88, passing: 85, defending: 82, physical: 80, photo: playerPhoto('Roberto Carlos') },
+  { id: 151, name: 'Cafu', team: 'Legends', league: 'Serie A', leagueId: 135, position: 'DEF', tier: 'Legend', rating: 92, pace: 90, shooting: 58, passing: 80, defending: 88, physical: 85, photo: playerPhoto('Cafu') },
+  { id: 152, name: 'Sergio Ramos', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'DEF', tier: 'Legend', rating: 93, pace: 75, shooting: 68, passing: 70, defending: 94, physical: 92, photo: playerPhoto('Sergio Ramos') },
 
   // MID — now all 99
-  { id: 114, name: 'Zinedine Zidane', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'MID', tier: 'Star', rating: 96, pace: 78, shooting: 88, passing: 96, defending: 42, physical: 80, photo: playerPhoto('Zinedine Zidane') },
-  { id: 102, name: 'Ronaldinho', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'MID', tier: 'Star', rating: 94, pace: 88, shooting: 88, passing: 95, defending: 28, physical: 72, photo: playerPhoto('Ronaldinho') },
-  { id: 110, name: 'Abédi Pelé', team: 'Legends', league: 'Ligue 1', leagueId: 61, position: 'MID', tier: 'Star', rating: 90, pace: 86, shooting: 82, passing: 88, defending: 40, physical: 78, photo: playerPhoto('Abédi Pelé') },
-  { id: 153, name: 'Andrés Iniesta', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'MID', tier: 'Star', rating: 94, pace: 74, shooting: 78, passing: 96, defending: 58, physical: 65, photo: playerPhoto('Andrés Iniesta') },
-  { id: 154, name: 'Xavi Hernández', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'MID', tier: 'Star', rating: 93, pace: 65, shooting: 72, passing: 97, defending: 62, physical: 62, photo: playerPhoto('Xavi Hernández') },
-  { id: 155, name: 'Andrea Pirlo', team: 'Legends', league: 'Serie A', leagueId: 135, position: 'MID', tier: 'Star', rating: 92, pace: 58, shooting: 82, passing: 95, defending: 55, physical: 60, photo: playerPhoto('Andrea Pirlo') },
+  { id: 114, name: 'Zinedine Zidane', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'MID', tier: 'Legend', rating: 96, pace: 78, shooting: 88, passing: 96, defending: 42, physical: 80, photo: playerPhoto('Zinedine Zidane') },
+  { id: 102, name: 'Ronaldinho', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'MID', tier: 'Legend', rating: 94, pace: 88, shooting: 88, passing: 95, defending: 28, physical: 72, photo: playerPhoto('Ronaldinho') },
+  { id: 110, name: 'Abédi Pelé', team: 'Legends', league: 'Ligue 1', leagueId: 61, position: 'MID', tier: 'Legend', rating: 90, pace: 86, shooting: 82, passing: 88, defending: 40, physical: 78, photo: playerPhoto('Abédi Pelé') },
+  { id: 153, name: 'Andrés Iniesta', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'MID', tier: 'Legend', rating: 94, pace: 74, shooting: 78, passing: 96, defending: 58, physical: 65, photo: playerPhoto('Andrés Iniesta') },
+  { id: 154, name: 'Xavi Hernández', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'MID', tier: 'Legend', rating: 93, pace: 65, shooting: 72, passing: 97, defending: 62, physical: 62, photo: playerPhoto('Xavi Hernández') },
+  { id: 155, name: 'Andrea Pirlo', team: 'Legends', league: 'Serie A', leagueId: 135, position: 'MID', tier: 'Legend', rating: 92, pace: 58, shooting: 82, passing: 95, defending: 55, physical: 60, photo: playerPhoto('Andrea Pirlo') },
 
   // FWD — all 99
-  { id: 100, name: 'Pelé', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Star', rating: 98, pace: 92, shooting: 97, passing: 90, defending: 35, physical: 82, photo: playerPhoto('Pelé') },
-  { id: 101, name: 'Diego Maradona', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Star', rating: 97, pace: 90, shooting: 95, passing: 94, defending: 38, physical: 78, photo: playerPhoto('Diego Maradona') },
-  { id: 103, name: 'Ronaldo Nazário', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Star', rating: 96, pace: 95, shooting: 96, passing: 78, defending: 28, physical: 85, photo: playerPhoto('Ronaldo Nazário') },
-  { id: 104, name: 'Cristiano Ronaldo', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Star', rating: 96, pace: 92, shooting: 97, passing: 82, defending: 38, physical: 88, photo: playerPhoto('Cristiano Ronaldo') },
-  { id: 106, name: 'Lionel Messi', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Star', rating: 97, pace: 88, shooting: 95, passing: 96, defending: 32, physical: 62, photo: playerPhoto('Lionel Messi') },
-  { id: 107, name: 'Johan Cruyff', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Star', rating: 95, pace: 85, shooting: 90, passing: 94, defending: 42, physical: 68, photo: playerPhoto('Johan Cruyff') },
+  { id: 100, name: 'Pelé', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Legend', rating: 98, pace: 92, shooting: 97, passing: 90, defending: 35, physical: 82, photo: playerPhoto('Pelé') },
+  { id: 101, name: 'Diego Maradona', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Legend', rating: 97, pace: 90, shooting: 95, passing: 94, defending: 38, physical: 78, photo: playerPhoto('Diego Maradona') },
+  { id: 103, name: 'Ronaldo Nazário', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Legend', rating: 96, pace: 95, shooting: 96, passing: 78, defending: 28, physical: 85, photo: playerPhoto('Ronaldo Nazário') },
+  { id: 104, name: 'Cristiano Ronaldo', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Legend', rating: 96, pace: 92, shooting: 97, passing: 82, defending: 38, physical: 88, photo: playerPhoto('Cristiano Ronaldo') },
+  { id: 106, name: 'Lionel Messi', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Legend', rating: 97, pace: 88, shooting: 95, passing: 96, defending: 32, physical: 62, photo: playerPhoto('Lionel Messi') },
+  { id: 107, name: 'Johan Cruyff', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Legend', rating: 95, pace: 85, shooting: 90, passing: 94, defending: 42, physical: 68, photo: playerPhoto('Johan Cruyff') },
   { id: 109, name: 'Karim Benzema', team: 'Al-Ittihad', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Great', rating: 92, pace: 76, shooting: 94, passing: 88, defending: 35, physical: 80, photo: playerPhoto('Karim Benzema') },
-  { id: 111, name: 'Ferenc Puskás', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Star', rating: 95, pace: 82, shooting: 97, passing: 88, defending: 32, physical: 78, photo: playerPhoto('Ferenc Puskás') },
-  { id: 156, name: 'Thierry Henry', team: 'Legends', league: 'Premier League', leagueId: 39, position: 'FWD', tier: 'Star', rating: 94, pace: 93, shooting: 92, passing: 85, defending: 32, physical: 74, photo: playerPhoto('Thierry Henry') },
-  { id: 157, name: 'Ronaldo de Lima', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Star', rating: 94, pace: 90, shooting: 94, passing: 76, defending: 28, physical: 78, photo: playerPhoto('Romário') },
+  { id: 111, name: 'Ferenc Puskás', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Legend', rating: 95, pace: 82, shooting: 97, passing: 88, defending: 32, physical: 78, photo: playerPhoto('Ferenc Puskás') },
+  { id: 156, name: 'Thierry Henry', team: 'Legends', league: 'Premier League', leagueId: 39, position: 'FWD', tier: 'Legend', rating: 94, pace: 93, shooting: 92, passing: 85, defending: 32, physical: 74, photo: playerPhoto('Thierry Henry') },
+  { id: 157, name: 'Ronaldo de Lima', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'FWD', tier: 'Legend', rating: 94, pace: 90, shooting: 94, passing: 76, defending: 28, physical: 78, photo: playerPhoto('Romário') },
 
   // Current stars (realistic ratings)
-  { id: 108, name: 'Marcelo', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'DEF', tier: 'Star', rating: 91, pace: 86, shooting: 72, passing: 88, defending: 80, physical: 76, photo: playerPhoto('Marcelo') },
+  { id: 108, name: 'Marcelo', team: 'Legends', league: 'La Liga', leagueId: 140, position: 'DEF', tier: 'Legend', rating: 91, pace: 86, shooting: 72, passing: 88, defending: 80, physical: 76, photo: playerPhoto('Marcelo') },
   { id: 115, name: 'Rúben Dias', team: 'Manchester City', league: 'Premier League', leagueId: 39, position: 'DEF', tier: 'Star', rating: 88, pace: 72, shooting: 42, passing: 68, defending: 92, physical: 88, photo: playerPhoto('Rúben Dias') },
   { id: 116, name: 'Dani Carvajal', team: 'Real Madrid', league: 'La Liga', leagueId: 140, position: 'DEF', tier: 'Star', rating: 87, pace: 72, shooting: 60, passing: 78, defending: 90, physical: 75, photo: playerPhoto('Dani Carvajal') },
   { id: 117, name: 'Alessandro Bastoni', team: 'Inter Milan', league: 'Serie A', leagueId: 135, position: 'DEF', tier: 'Star', rating: 87, pace: 74, shooting: 40, passing: 80, defending: 90, physical: 85, photo: playerPhoto('Alessandro Bastoni') },

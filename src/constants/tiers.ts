@@ -10,6 +10,15 @@ export interface TierInfo {
 
 export const TIERS: TierInfo[] = [
   {
+    name: 'Legend',
+    price: 7500000,
+    priceLabel: '$7.5M',
+    emoji: '👑',
+    color: '#FF4500',
+    minRating: 90,
+    maxRating: 99,
+  },
+  {
     name: 'Star',
     price: 5000000,
     priceLabel: '$5M',
