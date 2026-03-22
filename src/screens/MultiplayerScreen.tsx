@@ -7,7 +7,10 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
+  Share,
+  Platform,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../constants/colors';
 import { AuthContext } from '../../App';
@@ -209,7 +212,13 @@ export default function MultiplayerScreen({ hasSquad, squadJson, onPlayComputer,
             <Text style={styles.localArrow}>▶</Text>
           </TouchableOpacity>
 
-          <Text style={styles.orText}>— or play online (coming soon) —</Text>
+          <Text style={styles.orText}>— or play online —</Text>
+
+          {!user && !isGuest && (
+            <View style={styles.loginNeeded}>
+              <Text style={styles.loginNeededText}>🔑 Log in to play online matches</Text>
+            </View>
+          )}
 
           {/* Created challenge code display */}
           {createdCode && waiting ? (
@@ -219,11 +228,64 @@ export default function MultiplayerScreen({ hasSquad, squadJson, onPlayComputer,
                 <Text style={styles.codeBigText}>{createdCode}</Text>
               </View>
               <Text style={styles.codeInstruction}>
-                Share this code with your friend so they can join!
+                Send this code to your friend so they can join!
               </Text>
+
+              {/* Share buttons */}
+              <View style={styles.shareRow}>
+                <TouchableOpacity
+                  style={styles.shareButton}
+                  onPress={async () => {
+                    await Clipboard.setStringAsync(createdCode);
+                    setJoinMsg('Code copied!');
+                    setTimeout(() => setJoinMsg(null), 2000);
+                  }}
+                >
+                  <Text style={styles.shareButtonText}>📋 Copy Code</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.shareButton, styles.shareButtonPrimary]}
+                  onPress={async () => {
+                    try {
+                      await Share.share({
+                        message: `I challenge you to a match in Top League! ⚽\n\nJoin with code: ${createdCode}\n\nOpen the app and enter my code in Multiplayer > Join.\n\nhttps://top-league.vercel.app`,
+                      });
+                    } catch (e) {}
+                  }}
+                >
+                  <Text style={styles.shareButtonPrimaryText}>📤 Share via...</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.shareButton, { marginTop: 8, alignSelf: 'stretch' }]}
+                onPress={async () => {
+                  const subject = encodeURIComponent('Top League Challenge! ⚽');
+                  const body = encodeURIComponent(
+                    `I challenge you to a match in Top League!\n\nJoin with code: ${createdCode}\n\nOpen https://top-league.vercel.app, go to Dream Team > Multiplayer > Join, and enter my code.\n\nLet's see who builds the better squad!`
+                  );
+                  const mailUrl = `mailto:?subject=${subject}&body=${body}`;
+                  // Using Share as fallback since Linking may not work on all platforms
+                  try {
+                    await Share.share({
+                      message: `I challenge you to a match in Top League! ⚽\n\nJoin with code: ${createdCode}\n\nOpen https://top-league.vercel.app and enter my code in Multiplayer.\n\nLet's see who builds the better squad!`,
+                      title: 'Top League Challenge',
+                    });
+                  } catch (e) {}
+                }}
+              >
+                <Text style={styles.shareButtonText}>✉️ Invite via Email</Text>
+              </TouchableOpacity>
+
               <View style={styles.waitingDots}>
                 <Text style={styles.waitingText}>⏳ Waiting for friend to join...</Text>
               </View>
+
+              {joinMsg && (
+                <Text style={styles.copiedText}>{joinMsg}</Text>
+              )}
+
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={handleCancelChallenge}
@@ -442,6 +504,55 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: Colors.textPrimary,
+  },
+  loginNeeded: {
+    backgroundColor: Colors.draw + '20',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: Colors.draw,
+  },
+  loginNeededText: {
+    fontSize: 14,
+    color: Colors.draw,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  shareRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 14,
+    width: '100%',
+  },
+  shareButton: {
+    flex: 1,
+    backgroundColor: Colors.darkSurface,
+    borderRadius: 10,
+    padding: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.textSecondary + '40',
+  },
+  shareButtonPrimary: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primaryLight,
+  },
+  shareButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  shareButtonPrimaryText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  copiedText: {
+    fontSize: 13,
+    color: Colors.primaryLight,
+    fontWeight: '600',
+    marginTop: 8,
   },
   codeDisplay: {
     backgroundColor: Colors.darkCard,
