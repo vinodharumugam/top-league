@@ -15,38 +15,44 @@ export default function MoreScreen() {
 
   if (subScreen === 'transfers') {
     return (
-      <SafeAreaView style={styles.container}>
-        <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
-          <Text style={styles.backText}>← Back to More</Text>
-        </TouchableOpacity>
+      <View style={styles.container}>
+        <SafeAreaView style={{ backgroundColor: Colors.dark }}>
+          <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
+            <Text style={styles.backText}>← Back to More</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
         <TransfersScreen />
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (subScreen === 'highlights') {
     return (
-      <SafeAreaView style={styles.container}>
-        <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
-          <Text style={styles.backText}>← Back to More</Text>
-        </TouchableOpacity>
+      <View style={styles.container}>
+        <SafeAreaView style={{ backgroundColor: Colors.dark }}>
+          <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
+            <Text style={styles.backText}>← Back to More</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
         <HighlightsScreen />
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (subScreen === 'profile' && user) {
     return (
-      <SafeAreaView style={styles.container}>
-        <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
-          <Text style={styles.backText}>← Back to More</Text>
-        </TouchableOpacity>
+      <View style={styles.container}>
+        <SafeAreaView style={{ backgroundColor: Colors.dark }}>
+          <TouchableOpacity onPress={() => setSubScreen('menu')} style={styles.backButton}>
+            <Text style={styles.backText}>← Back to More</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
         <ProfileScreen
           userId={user.id}
           username={profile?.username || 'Player'}
           onSignOut={clearAuth}
         />
-      </SafeAreaView>
+      </View>
     );
   }
 
