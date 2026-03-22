@@ -101,6 +101,7 @@ export default function HighlightsScreen() {
           </View>
         ) : (
           <FlatList
+            key="teams-grid"
             data={teams}
             numColumns={3}
             keyExtractor={(item) => item.id}
@@ -218,6 +219,7 @@ export default function HighlightsScreen() {
         </View>
       ) : (
         <FlatList
+          key="highlights-list"
           data={highlights}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.highlightList}
