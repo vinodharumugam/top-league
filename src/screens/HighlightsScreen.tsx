@@ -48,13 +48,7 @@ export default function HighlightsScreen() {
   const loadHighlights = async (teamName: string) => {
     setLoading(true);
     const data = await fetchHighlights(selectedLeague.id, teamName);
-    // If no team-specific highlights, try league-wide
-    if (data.length === 0) {
-      const leagueData = await fetchHighlights(selectedLeague.id);
-      setHighlights(leagueData);
-    } else {
-      setHighlights(data);
-    }
+    setHighlights(data);
     setLoading(false);
     setStep('highlights');
   };
@@ -117,7 +111,7 @@ export default function HighlightsScreen() {
                 style={styles.teamCard}
                 onPress={() => {
                   setSelectedTeam(item);
-                  loadHighlights(item.shortName);
+                  loadHighlights(item.name);
                 }}
                 activeOpacity={0.7}
               >

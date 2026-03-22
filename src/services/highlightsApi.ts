@@ -57,15 +57,26 @@ export async function fetchHighlights(leagueId?: number, teamName?: string): Pro
       );
     }
 
-    // Filter by team name if specified
+    // Filter by team name — strict matching, only show that team's matches
     if (teamName) {
       const name = teamName.toLowerCase();
-      highlights = highlights.filter(
-        (h: VideoHighlight) =>
-          h.team1.toLowerCase().includes(name) ||
-          h.team2.toLowerCase().includes(name) ||
-          h.title.toLowerCase().includes(name)
-      );
+      // Also try key words from the name (e.g. "Brighton & Hove Albion" -> check "Brighton")
+      const nameWords = name.split(/[\s&]+/).filter((w) => w.length >= 4);
+
+      highlights = highlights.filter((h: VideoHighlight) => {
+        const t1 = h.team1.toLowerCase();
+        const t2 = h.team2.toLowerCase();
+        const title = h.title.toLowerCase();
+
+        // Direct match (either direction)
+        if (t1.includes(name) || t2.includes(name)) return true;
+        if (name.includes(t1) || name.includes(t2)) return true;
+
+        // Word-level match — at least one significant word must match
+        return nameWords.some((word) =>
+          t1.includes(word) || t2.includes(word) || title.includes(word)
+        );
+      });
     }
 
     return highlights;
