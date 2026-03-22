@@ -240,15 +240,15 @@ export function simulateMatch(homeSquad: Squad, awaySquad: Squad): MatchSimResul
       const bestDefender = defAnalysis.players.def.length > 0
         ? defAnalysis.players.def.reduce((best, d) => d.defending > best.defending ? d : best)
         : null;
-      const defBlock = bestDefender ? (bestDefender.defending / 100) * 0.4 : 0.2;
-      const gkSave = (defAnalysis.gkRating / 100) * 0.35;
+      const defBlock = bestDefender ? (bestDefender.defending / 100) * 0.25 : 0.12;
+      const gkSave = (defAnalysis.gkRating / 100) * 0.2;
 
       // Goal probability = attacker skill vs defence + GK, with momentum & counter bonus
-      const momentumBonus = (isHome ? momentum : -momentum) * 0.01;
-      const goalChance = (shotPower * 0.45 - defBlock - gkSave + counterBonus + momentumBonus) * injuryPenalty;
+      const momentumBonus = (isHome ? momentum : -momentum) * 0.015;
+      const goalChance = (shotPower * 0.55 - defBlock - gkSave + counterBonus + momentumBonus) * injuryPenalty;
 
-      // Clamp between 2% and 35%
-      const finalGoalChance = Math.max(0.02, Math.min(0.35, goalChance));
+      // Clamp between 5% and 40%
+      const finalGoalChance = Math.max(0.05, Math.min(0.40, goalChance));
 
       const outcome = Math.random();
 
